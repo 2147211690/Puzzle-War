@@ -1,0 +1,23 @@
+{
+    "appid": "tt761200afe874baa507",
+    "projectname": "Puzzle War",
+    "unity": {
+        "build": {
+            "webgl": "D:\\Projects\\UnityProjects\\Puzzle War Output\\webgl_package-20260414_230401.zip",
+            "native": {
+                "il2cpp": "",
+                "apk": "",
+                "fullApk": ""
+            },
+            "instantGame": ""
+        },
+        "publishType": "3",
+        "starkSdkVersion": "Without StarkSDK",
+        "unityToolsVersion": null,
+        "unityEngineVersion": "2022.3.55f1c1",
+        "arch": "both"
+    },
+    "setting": {
+        "urlCheck": false
+    }
+}
