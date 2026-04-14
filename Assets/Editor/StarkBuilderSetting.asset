@@ -18,7 +18,7 @@ MonoBehaviour:
   useByteAudioAPI: 0
   wasmMemorySize: 128
   isWebGL2: 1
-  needCompress: 1
+  needCompress: 0
   symbolMode: 1
   profiling: 0
   clearStreamingAssets: 0
@@ -54,7 +54,7 @@ MonoBehaviour:
   _appId: tt761200afe874baa507
   version: 
   autoVersion: 0
-  _webglPackagePath: D:\Projects\UnityProjects\Puzzle War Output\webgl_package-20260414_230401.zip
+  _webglPackagePath: D:\Projects\UnityProjects\Puzzle War Output\webgl_package-20260415_023758.zip
   _orientation: 0
   _iOSPerformancePlus: 0
   _menuButtonStyle: 0

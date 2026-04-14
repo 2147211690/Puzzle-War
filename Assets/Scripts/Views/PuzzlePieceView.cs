@@ -1,5 +1,6 @@
 
 using System;
+using DefaultNamespace;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -17,14 +18,35 @@ namespace Views
 
         public Image broad = null!;
         public RectMask2D mask = null!;
+        public PuzzlePieceStyle style = null!;
+        private bool _isCanMove = true;
         public int PuzzleId { get; private set; }
 
-        public void Init(int puzzleId, Sprite? sprite, Vector2 renderSize)
+        public bool IsCanMove
+        {
+            get => _isCanMove;
+            set
+            {
+                if (_isCanMove == value) return;
+                _isCanMove = value;
+                if (_isCanMove)
+                {
+                    broad.sprite = style.moveSprite!;
+                }
+                else
+                {
+                    broad.sprite = style.fixedSprite!;
+                }
+            }
+        }
+
+        public void Init(int puzzleId, Sprite? sprite, bool isCanMove, Vector2 renderSize)
         {
             PuzzleId = puzzleId;
             idText.text = PuzzleId.ToString();
             if (sprite is not null) image.sprite = sprite;
-            rectTransform.sizeDelta = renderSize + new Vector2Int(1, 1); //加1,避免误差
+            rectTransform.sizeDelta = renderSize + new Vector2Int(2, 2); //加2,避免误差
+            IsCanMove = isCanMove;
         }
         
         public void AddClickEvent(Action<int> onClick)
@@ -56,6 +78,42 @@ namespace Views
             rectTransform
                 .DOLocalMove(localTargetPos, animTime)
                 .SetEase(Ease.OutSine)
+                .SetUpdate(true);
+        }
+
+        public void PlaySummon(float animTime)
+        {
+            // 先干掉旧动画，防止冲突
+            rectTransform.DOKill(true);
+            // 初始状态：缩放到0
+            rectTransform.localScale = Vector3.zero;
+            
+            // 灵动缩放：从0弹性放大到1，带有回弹效果
+            rectTransform
+                .DOScale(1f, animTime)
+                .SetEase(Ease.OutBack, overshoot: 1.5f) // 回弹效果，overshoot控制回弹幅度
+                .SetUpdate(true);
+    
+            // 可选：同时淡入（如果初始透明）
+            image.DOFade(1f, animTime * 0.5f).From(0f).SetEase(Ease.OutQuad);
+    
+            // 可选：边框和文字也跟随淡入
+            broad.DOFade(1f, animTime * 0.6f).From(0f).SetEase(Ease.OutQuad);
+            idText.DOFade(1f, animTime * 0.6f).From(0f).SetEase(Ease.OutQuad);
+        }
+        public void PlayCompleteSummon(float animTime)
+        {
+            // 先干掉旧动画，防止冲突
+            rectTransform.DOKill(true);
+            // 初始状态：缩放到0
+            rectTransform.localScale = Vector3.zero;
+            mask.padding = Vector4.zero;
+            broad.color = Color.clear;
+            idText.color = Color.clear;
+            // 灵动缩放：从0弹性放大到1，带有回弹效果
+            rectTransform
+                .DOScale(1f, animTime)
+                .SetEase(Ease.OutBack, overshoot: 1.5f) // 回弹效果，overshoot控制回弹幅度
                 .SetUpdate(true);
         }
     }
