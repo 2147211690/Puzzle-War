@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: PuzzlePieceStyle
   m_EditorClassIdentifier: 
   moveSprite: {fileID: 21300000, guid: bec86f404a1c4c647b750b768af14e51, type: 3}
+  moveUpDownSprite: {fileID: 21300000, guid: 831a27b258ed2a14496be92c7701cbb1, type: 3}
+  moveLeftRightSprite: {fileID: 21300000, guid: bcc8e6dffdb02b9408cc0ce2ad0d78b2, type: 3}
   fixedSprite: {fileID: 21300000, guid: f120b68e994e7b942894624c45c200ca, type: 3}

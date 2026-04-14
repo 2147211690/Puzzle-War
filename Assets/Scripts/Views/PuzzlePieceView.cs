@@ -2,6 +2,7 @@
 using System;
 using DefaultNamespace;
 using DG.Tweening;
+using Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,34 +20,33 @@ namespace Views
         public Image broad = null!;
         public RectMask2D mask = null!;
         public PuzzlePieceStyle style = null!;
-        private bool _isCanMove = true;
+        private PieceTypeEnum _type = PieceTypeEnum.Free;
         public int PuzzleId { get; private set; }
 
-        public bool IsCanMove
+        public PieceTypeEnum Type
         {
-            get => _isCanMove;
+            get => _type;
             set
             {
-                if (_isCanMove == value) return;
-                _isCanMove = value;
-                if (_isCanMove)
+                if (_type == value) return;
+                _type = value;
+                broad.sprite = _type switch
                 {
-                    broad.sprite = style.moveSprite!;
-                }
-                else
-                {
-                    broad.sprite = style.fixedSprite!;
-                }
+                    PieceTypeEnum.Free => style.moveSprite,
+                    PieceTypeEnum.Fixed => style.fixedSprite,
+                    PieceTypeEnum.UpDown => style.moveUpDownSprite,
+                    PieceTypeEnum.LeftRight => style.moveLeftRightSprite,
+                };
             }
         }
 
-        public void Init(int puzzleId, Sprite? sprite, bool isCanMove, Vector2 renderSize)
+        public void Init(int puzzleId, Sprite? sprite, PieceTypeEnum type, Vector2 renderSize)
         {
             PuzzleId = puzzleId;
             idText.text = PuzzleId.ToString();
             if (sprite is not null) image.sprite = sprite;
             rectTransform.sizeDelta = renderSize + new Vector2Int(2, 2); //加2,避免误差
-            IsCanMove = isCanMove;
+            Type = type;
         }
         
         public void AddClickEvent(Action<int> onClick)

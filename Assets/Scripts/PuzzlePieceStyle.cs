@@ -6,6 +6,8 @@ namespace DefaultNamespace
     public class PuzzlePieceStyle : ScriptableObject
     {
         public Sprite? moveSprite;
+        public Sprite? moveUpDownSprite;
+        public Sprite? moveLeftRightSprite;
         public Sprite? fixedSprite;
     }
 }

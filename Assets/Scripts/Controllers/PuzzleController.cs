@@ -40,7 +40,7 @@ namespace Controllers
         private void OnClickPiece(int id)
         {
             var coords = _puzzleModel[id];
-            if (_puzzleModel[coords].IsEmpty || !_puzzleModel[coords].IsCanMove) return;
+            if (_puzzleModel[coords].IsEmpty || _puzzleModel[coords].Type == PieceTypeEnum.Fixed) return;
             for (int i = 0; i < _directions.Length; i++)
             {
                 var checkCoords = coords + _directions[i];
@@ -110,7 +110,7 @@ namespace Controllers
                         Id = id,
                         Sprite = sprite,
                         IsEmpty = id == 0,
-                        IsCanMove = true
+                        Type = PieceTypeEnum.Free
                     };
                 }
             }
@@ -136,8 +136,8 @@ namespace Controllers
                 int nx = emptyPos.x + dir.x;
                 int ny = emptyPos.y + dir.y;
 
-                // 判断是否在范围内
-                if (nx < 0 || nx >= cols || ny < 0 || ny >= rows || !pieces[nx, ny].IsCanMove)
+                // 判断是否在范围内且是自由块 TODO: 可以根据类型判断是否可移动
+                if (nx < 0 || nx >= cols || ny < 0 || ny >= rows || pieces[nx, ny].Type != PieceTypeEnum.Free)
                     continue;
                 
                 // 交换空白块和相邻块
@@ -180,8 +180,8 @@ namespace Controllers
                 for (int y = 0; y < rows; y++)
                 {
                     var piece = pieces[x, y];
-                    // 忽略空白块，只选可移动的正常块
-                    if (!piece.IsEmpty && piece.IsCanMove)
+                    // 忽略空白块，只选可移动的正常块 TODO: 可以根据类型判断是否可移动
+                    if (!piece.IsEmpty && piece.Type == PieceTypeEnum.Free)
                     {
                         availableIndices.Add((x, y));
                     }
@@ -203,7 +203,7 @@ namespace Controllers
             for (int i = 0; i < count; i++)
             {
                 var (x, y) = availableIndices[i];
-                pieces[x, y].IsCanMove = false;
+                pieces[x, y].Type = PieceTypeEnum.Fixed;
             }
         }
     }

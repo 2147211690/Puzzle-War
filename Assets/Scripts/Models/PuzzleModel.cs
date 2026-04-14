@@ -65,7 +65,7 @@ namespace Models
             {
                 for (int j = 0; j < Size.y; j++)
                 {
-                    _pieceModels[i, j] = new PieceModel() {Id = i + j * Size.x, IsEmpty = true, IsCanMove = true};
+                    _pieceModels[i, j] = new PieceModel() {Id = i + j * Size.x, IsEmpty = true, Type = PieceTypeEnum.Fixed};
                 }
             }
         }

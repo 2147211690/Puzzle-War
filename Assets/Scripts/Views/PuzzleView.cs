@@ -38,7 +38,7 @@ namespace Views
         private PuzzlePieceView CreatePiece(in PieceModel piece, Vector2Int coords)
         {
             var pieceView = PuzzlePieceViews[coords.x, coords.y] = Instantiate(puzzlePieceViewPrefab, transform).GetComponent<PuzzlePieceView>();
-            pieceView.Init(piece.Id, piece.Sprite, piece.IsCanMove, _pieceSize);
+            pieceView.Init(piece.Id, piece.Sprite, piece.Type, _pieceSize);
             pieceView.rectTransform.localPosition = GetPosition(coords.x, coords.y);
             pieceView.gameObject.SetActive(!piece.IsEmpty);
             return pieceView;

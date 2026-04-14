@@ -7,6 +7,6 @@ namespace Models
         public int Id { get; set; }
         public bool IsEmpty { get; set; }
         public Sprite? Sprite { get; set; }
-        public bool IsCanMove { get; set; }
+        public PieceTypeEnum Type { get; set; }
     }
 }
