@@ -1535,7 +1535,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   puzzleController: {fileID: 995834808}
-  puzzleSize: {x: 5, y: 5}
+  puzzleSize: {x: 6, y: 6}
   puzzleTexture: {fileID: 2800000, guid: 1bd10532ba598f64dba93cd39e457d87, type: 3}
   startUi: {fileID: 1530522244}
   gammingUi: {fileID: 1025049186}
