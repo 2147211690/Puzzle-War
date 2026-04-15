@@ -6,14 +6,16 @@ namespace Models
     public class PuzzleModel
     {
         public Vector2Int Size { get; }
-        public int StepCount { get; private set; }
+        public int StepCount { get; set; }
+        public IReadOnlyCollection<Barrier> Barriers => _barriers;
         private PieceModel[,] _pieceModels;
-        private Dictionary<int, Vector2Int> _coords = new();
-        
+        private Vector2Int[] _coords;
+        private HashSet<Barrier> _barriers = new();
         public PuzzleModel(Vector2Int size)
         {
             Size = size;
             _pieceModels = new PieceModel[Size.x, Size.y];
+            _coords = new Vector2Int[Size.x * Size.y];
             ClearPieceModels();
         }
         public void Swap(Vector2Int coords1, Vector2Int coords2)
@@ -23,12 +25,11 @@ namespace Models
             _coords[c1.Id] = coords2;
             _coords[c2.Id] = coords1;
             SwapPieceModels(coords1, coords2);
-            StepCount++;
         }
         public void Clear()
         {
-            _coords.Clear();
             ClearPieceModels();
+            ClearBarriers();
         }
 
         public void FillAll()
@@ -42,6 +43,7 @@ namespace Models
                 }
             }
         }
+        //需要保证id 0-size.x*size.y-1,且每个id只出现一次
         public void SetPuzzle(PieceModel[,] pieces)
         {
             StepCount = 0;
@@ -54,7 +56,15 @@ namespace Models
                 }
             }
         }
-        public Vector2Int GetCoords(int id) => _coords.TryGetValue(id, out var coords) ? coords : Vector2Int.zero;
+        public void SetPieceType(in Vector2Int coords, PieceTypeEnum type)
+        {
+            _pieceModels[coords.x, coords.y].Type = type;
+        }
+        public void AddBarrier(in Vector2Int coords1, in Vector2Int coords2) => _barriers.Add(new(coords1, coords2));
+        public bool IsBarrier(in Vector2Int coords1, in Vector2Int coords2) => _barriers.Contains(new(coords1, coords2));
+        public void RemoveBarrier(in Vector2Int coords1, in Vector2Int coords2) => _barriers.Remove(new(coords1, coords2));
+        public void ClearBarriers() => _barriers.Clear();
+        public Vector2Int GetCoords(int id) => _coords[id];
         public PieceModel this[int x, int y] => GetPieceModel(x, y);
         public PieceModel this[Vector2Int coords] => GetPieceModel(coords.x, coords.y);
         public Vector2Int this[int id] => GetCoords(id);

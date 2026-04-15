@@ -43,7 +43,7 @@ namespace Views
         public void Init(int puzzleId, Sprite? sprite, PieceTypeEnum type, Vector2 renderSize)
         {
             PuzzleId = puzzleId;
-            idText.text = PuzzleId.ToString();
+            idText.text = (PuzzleId + 1).ToString();
             if (sprite is not null) image.sprite = sprite;
             rectTransform.sizeDelta = renderSize + new Vector2Int(2, 2); //加2,避免误差
             Type = type;
