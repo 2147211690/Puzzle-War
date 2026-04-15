@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Models;
 using Tools;
 using UnityEngine;
@@ -7,48 +5,60 @@ using Views;
 
 namespace Controllers
 {
-    public class PuzzleController : MonoBehaviour
+    public partial class PuzzleController : MonoBehaviour
     {
         public PuzzleView puzzleView = null!;
         public int shuffleSteps = 150;
         private PuzzleModel _puzzleModel = null!;
+        private StateMachine<State> _stateMachine = null!;
 
-        
-        public void Init(Vector2Int puzzleSize, Texture2D texture2D)
+        private PlayState _playState;
+        private HammerToolState _hammerToolState;
+        private ScissorsToolState _scissorsToolState;
+
+        private void Awake()
         {
-            // 自动切割大图 → 小Sprite列表
-            _puzzleModel = PuzzleTools.CutTextureToSprites(texture2D, puzzleSize)
-                .RandomPiecesType(3,2,2)
-                .RandomBarriers(5)
-                .ShufflePieces(shuffleSteps);
-            // 初始化 View
-            puzzleView.Init(_puzzleModel);
-            RegesterClickPiece();
-            
-            AudioManager.Instance.PlayBGM("bgm");
+            _playState = new PlayState(this);
+            _scissorsToolState = new ScissorsToolState(this);
+            _hammerToolState = new HammerToolState(this);
+            _stateMachine = new StateMachine<State>(_playState);
         }
 
-        private void RegesterClickPiece()
+        private void Start()
         {
-            foreach (var pieceView in puzzleView.PuzzlePieceViews)
+            _stateMachine.Init();
+            puzzleView.ToolClicked += OnToolClicked;
+        }
+
+        private void OnToolClicked(object sender, ToolTypeEnum e)
+        {
+            _stateMachine.CurrentState.OnClickTool(e);
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.A))
             {
-                pieceView.AddClickEvent(OnClickPiece);
+                _stateMachine.CurrentState.OnClickTool(ToolTypeEnum.Hammer);
             }
+            if (Input.GetKeyDown(KeyCode.S))
+                _stateMachine.CurrentState.OnClickTool(ToolTypeEnum.Scissors);
+        }
+
+        public void Init(Vector2Int puzzleSize, Texture2D texture2D)
+        {
+            _stateMachine.CurrentState.Init(puzzleSize, texture2D);
         }
 
         private void OnClickPiece(int id)
         {
-            var coords = _puzzleModel[id];
-            if (!TrySwapCoords(coords)) return;
-            AudioManager.Instance.PlaySfx("move");
-            if (CheckWin())
-            {
-                Debug.Log("Win!");
-                _puzzleModel.FillAll();
-                puzzleView.Wim();
-            }
+            _stateMachine.CurrentState.OnClickPiece(id);
         }
-
+        private void OnClickBarrier(Barrier barrier)
+        {
+            _stateMachine.CurrentState.OnClickBarrier(barrier);
+        }
+        
         private bool TrySwapCoords(Vector2Int coords)
         {
             if (!coords.InSize(_puzzleModel.Size)) return false;
@@ -60,7 +70,7 @@ namespace Controllers
                 var checkCoords = coords + dir[i];
                 if (!checkCoords.InSize(_puzzleModel.Size) ||
                     !_puzzleModel[checkCoords].IsEmpty ||
-                    _puzzleModel.IsBarrier(coords, checkCoords)) continue;
+                    _puzzleModel.IsBarrier(new(coords, checkCoords))) continue;
                 _puzzleModel.Swap(coords, checkCoords);
                 puzzleView.SwapPiece(coords, checkCoords);
                 _puzzleModel.StepCount++;
@@ -80,6 +90,5 @@ namespace Controllers
             }
             return true;
         }
-        
     }
 }

@@ -4,6 +4,7 @@ using DefaultNamespace;
 using DG.Tweening;
 using Models;
 using TMPro;
+using Tools;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -16,6 +17,7 @@ namespace Views
         public Image image = null!;
         public RectTransform rectTransform = null!;
         public TMP_Text idText = null!;
+        public Highlightable highlightable = null!;
 
         public Image broad = null!;
         public RectMask2D mask = null!;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Models;
 using TMPro;
@@ -12,12 +13,13 @@ namespace Views
         public GameObject backNumberPrefab = null!;
         public GameObject barrierPrefab = null!;
         public PuzzlePieceView[,] PuzzlePieceViews { get; set; } = null!;
-        public Dictionary<Barrier, Image> BarrierImages { get; set; } = new();
+        public Dictionary<Barrier, BarrierView> BarrierViews { get; set; } = new();
         public RectTransform rectTransform = null!;
         public GameObject numbers = null!;
         public GameObject pieces = null!;
         public GameObject barriers = null!;
-        
+
+        public event EventHandler<ToolTypeEnum>? ToolClicked;
         private Vector2Int _puzzleSize;
         private Vector2 _pieceSize = new(100, 100);
         private Vector2 _offset = new(0.5f, 0.5f);
@@ -43,10 +45,10 @@ namespace Views
                 CreateBarrier(barrier);
             }
         }
-
+        public void OnToolClicked(int toolType) => ToolClicked?.Invoke(this, (ToolTypeEnum)toolType);
         public void Clear()
         {
-            BarrierImages.Clear();
+            BarrierViews.Clear();
             var numberCount = numbers.transform.childCount;
             for (int i = 0; i < numberCount; i++)
             {
@@ -80,17 +82,22 @@ namespace Views
             return numberText;
         }
 
-        private Image CreateBarrier(in Barrier barrier)
+        private BarrierView CreateBarrier(in Barrier barrier)
         {
-            var image = Instantiate(barrierPrefab, barriers.transform).GetComponent<Image>();
-            BarrierImages[barrier] = image;
-            image.rectTransform.sizeDelta = _pieceSize;
-            image.rectTransform.localPosition = GetBarrierPosition(barrier);
+            var barrierView = Instantiate(barrierPrefab, barriers.transform).GetComponent<BarrierView>();
+            barrierView.Barrier = barrier;
+            barrierView.rectTransform.sizeDelta = _pieceSize;
+            barrierView.rectTransform.localPosition = GetBarrierPosition(barrier);
             var normalVec = barrier.NormalVec;
-            image.rectTransform.rotation = Quaternion.Euler(0, 0, normalVec.x * 90);
-            return image;
+            barrierView.rectTransform.rotation = Quaternion.Euler(0, 0, normalVec.x * 90);
+            BarrierViews[barrier] = barrierView;
+            return barrierView;
         }
-
+        public void RemoveBarrier(in Barrier barrier)
+        {
+            Destroy(BarrierViews[barrier].gameObject);
+            BarrierViews.Remove(barrier);
+        }
         public void SwapPiece(in Vector2Int from, in Vector2Int to)
         {
             var fromPiece = PuzzlePieceViews[from.x, from.y];

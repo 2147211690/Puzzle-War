@@ -109,7 +109,7 @@ namespace Tools
                     if (neighborPiece.IsEmpty || neighborPiece.Type == PieceTypeEnum.Fixed) continue;
 
                     // 根据邻居格子的类型，判断是否可以向空白块方向移动
-                    bool canMove = CanMoveToEmpty(neighborPiece.Type, dir) && !puzzleModel.IsBarrier(emptyPos, neighborPos);
+                    bool canMove = CanMoveToEmpty(neighborPiece.Type, dir) && !puzzleModel.IsBarrier(new(emptyPos, neighborPos));
 
                     if (canMove)
                     {
@@ -221,7 +221,7 @@ namespace Tools
         
                 if (neighbor.InSize(puzzleModel.Size))
                 {
-                    puzzleModel.AddBarrier(coord, neighbor);
+                    puzzleModel.AddBarrier(new(coord, neighbor));
                 }
             }
     

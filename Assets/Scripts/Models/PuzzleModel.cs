@@ -60,9 +60,9 @@ namespace Models
         {
             _pieceModels[coords.x, coords.y].Type = type;
         }
-        public void AddBarrier(in Vector2Int coords1, in Vector2Int coords2) => _barriers.Add(new(coords1, coords2));
-        public bool IsBarrier(in Vector2Int coords1, in Vector2Int coords2) => _barriers.Contains(new(coords1, coords2));
-        public void RemoveBarrier(in Vector2Int coords1, in Vector2Int coords2) => _barriers.Remove(new(coords1, coords2));
+        public void AddBarrier(in Barrier barrier) => _barriers.Add(barrier);
+        public bool IsBarrier(in Barrier barrier) => _barriers.Contains(barrier);
+        public void RemoveBarrier(in Barrier barrier) => _barriers.Remove(barrier);
         public void ClearBarriers() => _barriers.Clear();
         public Vector2Int GetCoords(int id) => _coords[id];
         public PieceModel this[int x, int y] => GetPieceModel(x, y);
