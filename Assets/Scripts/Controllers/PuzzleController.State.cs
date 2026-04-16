@@ -16,9 +16,12 @@ namespace Controllers
             public abstract void OnEnter();
             public abstract void OnExit();
             public abstract void Init(Vector2Int puzzleSize, Texture2D texture2D);
+            public abstract void Init(PuzzleModel puzzleModel);
             public abstract void OnClickPiece(int id);
             public abstract void OnClickBarrier(in Barrier barrier);
             public abstract void OnClickTool(ToolTypeEnum toolType);
+            public abstract void OnClickEventButton(GameEventEnum gameEvent);
+            public virtual void OnWinComplete(){}
         }
     }
 }

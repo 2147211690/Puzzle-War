@@ -1,12 +1,31 @@
+using System;
 using UnityEngine;
 
 namespace Models
 {
+    [Serializable]
     public struct PieceModel
     {
-        public int Id { get; set; }
-        public bool IsEmpty { get; set; }
-        public Sprite? Sprite { get; set; }
-        public PieceTypeEnum Type { get; set; }
+        [SerializeField] private int _id;
+        [SerializeField] private bool _isEmpty;
+        [SerializeField] private PieceTypeEnum _type;
+
+        public int Id
+        {
+            readonly get => _id;
+            set => _id = value;
+        }
+
+        public bool IsEmpty
+        {
+            readonly get => _isEmpty;
+            set => _isEmpty = value;
+        }
+
+        public PieceTypeEnum Type
+        {
+            readonly get => _type;
+            set => _type = value;
+        }
     }
 }

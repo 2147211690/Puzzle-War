@@ -3,17 +3,21 @@ using UnityEngine;
 
 namespace Models
 {
-    public readonly struct Barrier : IEquatable<Barrier>
+    [Serializable]
+    public struct Barrier : IEquatable<Barrier>, ISerializationCallbackReceiver
     {
+        [SerializeField] private Vector2Int _coords1;
+        [SerializeField] private Vector2Int _coords2;
         public Barrier(Vector2Int a, Vector2Int b)
         {
             // 一次性比较：先比x，x相同再比y
             bool aFirst = a.x < b.x || (a.x == b.x && a.y < b.y);
-            Coords1 = aFirst ? a : b;
-            Coords2 = aFirst ? b : a;
+            _coords1 = aFirst ? a : b;
+            _coords2 = aFirst ? b : a;
         }
-        public Vector2Int Coords1 { get; }
-        public Vector2Int Coords2 { get; }
+        public Vector2Int Coords1 => _coords1;
+        public Vector2Int Coords2 => _coords2;
+
         public override bool Equals(object? obj)
         {
             return obj is Barrier barrier && Coords1 == barrier.Coords1 && Coords2 == barrier.Coords2;
@@ -36,6 +40,19 @@ namespace Models
                 c.y = Mathf.Abs(c.y);
                 return c;
             }
+        }
+
+        public void OnBeforeSerialize()
+        {
+        }
+
+        public void OnAfterDeserialize()
+        {
+            var a = _coords1;
+            var b = _coords2;
+            bool aFirst = a.x < b.x || (a.x == b.x && a.y < b.y);
+            _coords1 = aFirst ? a : b;
+            _coords2 = aFirst ? b : a;
         }
     }
 }

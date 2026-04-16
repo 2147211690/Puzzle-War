@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Models;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Views
@@ -18,7 +19,7 @@ namespace Views
         public GameObject numbers = null!;
         public GameObject pieces = null!;
         public GameObject barriers = null!;
-
+        public EventHandler? WinComplete;
         public event EventHandler<ToolTypeEnum>? ToolClicked;
         private Vector2Int _puzzleSize;
         private Vector2 _pieceSize = new(100, 100);
@@ -36,7 +37,8 @@ namespace Views
                 for (int j = 0; j < _puzzleSize.y; j++)
                 {
                     //if (enumerator.Current.Sprite is null) continue;
-                    CreatePiece(puzzleModel[i, j], new Vector2Int(i, j));
+                    var piece = puzzleModel[i, j];
+                    CreatePiece(piece, new Vector2Int(i, j), puzzleModel.Sprites[piece.Id]);
                     CreateBackNumber(i + j * _puzzleSize.x + 1, new Vector2Int(i, j));
                 }
             }
@@ -65,10 +67,10 @@ namespace Views
                 Destroy(barriers.transform.GetChild(i).gameObject);
             }
         }
-        private PuzzlePieceView CreatePiece(in PieceModel piece, in Vector2Int coords)
+        private PuzzlePieceView CreatePiece(in PieceModel piece, in Vector2Int coords, Sprite sprite)
         {
             var pieceView = PuzzlePieceViews[coords.x, coords.y] = Instantiate(puzzlePieceViewPrefab, pieces.transform).GetComponent<PuzzlePieceView>();
-            pieceView.Init(piece.Id, piece.Sprite, piece.Type, _pieceSize);
+            pieceView.Init(piece.Id, sprite, piece.Type, _pieceSize);
             pieceView.rectTransform.localPosition = GetPosition(coords.x, coords.y);
             pieceView.gameObject.SetActive(!piece.IsEmpty);
             return pieceView;
@@ -124,7 +126,12 @@ namespace Views
                     piece.PlayComplete(0.2f);
                 }
             }
-            
+            foreach (var barrier in BarrierViews.Values)
+            {
+                barrier.PlayComplete(0.2f);
+            }
+            //TODO:动画等待完成
+            WinComplete?.Invoke(this, EventArgs.Empty);
         }
         private Vector2 GetPosition(int i, int j)
         {

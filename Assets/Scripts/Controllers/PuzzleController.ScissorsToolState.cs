@@ -12,9 +12,9 @@ namespace Controllers
             public override void OnEnter()
             {
                 int count = 0;
-                for (int i = 0; i < Owner._puzzleModel.Size.x; i++)
+                for (int i = 0; i < Owner.PuzzleModel.Size.x; i++)
                 {
-                    for (int j = 0; j < Owner._puzzleModel.Size.y; j++)
+                    for (int j = 0; j < Owner.PuzzleModel.Size.y; j++)
                     {
                         Owner.puzzleView.PuzzlePieceViews[i, j].button.enabled = false;
                     }
@@ -33,9 +33,9 @@ namespace Controllers
 
             public override void OnExit()
             {
-                for (int i = 0; i < Owner._puzzleModel.Size.x; i++)
+                for (int i = 0; i < Owner.PuzzleModel.Size.x; i++)
                 {
-                    for (int j = 0; j < Owner._puzzleModel.Size.y; j++)
+                    for (int j = 0; j < Owner.PuzzleModel.Size.y; j++)
                     {
                         Owner.puzzleView.PuzzlePieceViews[i, j].button.enabled = true;
                     }
@@ -51,6 +51,11 @@ namespace Controllers
             {
                
             }
+
+            public override void Init(PuzzleModel puzzleModel)
+            {
+            }
+
             private void RegesterClick()
             {
                 
@@ -62,7 +67,7 @@ namespace Controllers
 
             public override void OnClickBarrier(in Barrier barrier)
             {
-                Owner._puzzleModel.RemoveBarrier(barrier);
+                Owner.PuzzleModel.RemoveBarrier(barrier);
                 Owner.puzzleView.RemoveBarrier(barrier);
                 Owner._stateMachine.ChangeState(Owner._playState);
             }
@@ -70,6 +75,10 @@ namespace Controllers
             public override void OnClickTool(ToolTypeEnum toolType)
             {
                 if (toolType == ToolTypeEnum.Scissors) Owner._stateMachine.ChangeState(Owner._playState);
+            }
+
+            public override void OnClickEventButton(GameEventEnum gameEvent)
+            {
             }
         }
     }

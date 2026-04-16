@@ -20,7 +20,7 @@ namespace Views
         public Highlightable highlightable = null!;
 
         public Image broad = null!;
-        public RectMask2D mask = null!;
+        public Mask mask = null!;
         public PuzzlePieceStyle style = null!;
         private PieceTypeEnum _type = PieceTypeEnum.Free;
         public int PuzzleId { get; private set; }
@@ -59,12 +59,7 @@ namespace Views
         public void PlayComplete(float animTime)
         {
             //使用DOTween,mask边距逐渐为0,broad和idText逐渐为透明
-            DOTween.To(
-                () => mask.padding,
-                value => mask.padding = value,
-                new Vector4(0, 0, 0, 0),
-                animTime
-            ).SetEase(Ease.OutQuad);
+            mask.enabled = false;
             // 边框消失
             broad.DOFade(0, animTime).SetEase(Ease.OutQuad);
             // 文字消失
@@ -109,7 +104,7 @@ namespace Views
             rectTransform.DOKill(true);
             // 初始状态：缩放到0
             rectTransform.localScale = Vector3.zero;
-            mask.padding = Vector4.zero;
+            mask.enabled = false;
             broad.color = Color.clear;
             idText.color = Color.clear;
             // 灵动缩放：从0弹性放大到1，带有回弹效果

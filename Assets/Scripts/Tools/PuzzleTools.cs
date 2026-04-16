@@ -27,24 +27,20 @@ namespace Tools
                 _ => FixedDirections
             };
         }
-        
-        public static PuzzleModel CutTextureToSprites(
-            Texture2D tex, 
-            Vector2Int size)
+
+        public static Sprite[] GetTextureSprite(Texture2D texture2D, in Vector2Int size)
         {
-            var puzzleModel = new PuzzleModel(size);
+            var sprites = new Sprite[size.x * size.y];
             int cols = size.x; // 横向数量
             int rows = size.y; // 纵向数量
 
-            float pieceWidth = tex.width / (float)cols;   // 每块宽度
-            float pieceHeight = tex.height / (float)rows; // 每块高度
-            var pieces = new PieceModel[cols, rows];
+            float pieceWidth = texture2D.width / (float)cols;   // 每块宽度
+            float pieceHeight = texture2D.height / (float)rows; // 每块高度
             for (int y = 0; y < rows; y++)
             {
                 for (int x = 0; x < cols; x++)
                 {
                     int id = x + y * cols;
-
                     // 计算小图区域
                     Rect rect = new Rect(
                         x * pieceWidth,
@@ -52,21 +48,40 @@ namespace Tools
                         pieceWidth,
                         pieceHeight
                     );
-                    rect.x = Mathf.Clamp(rect.x, 0, tex.width);
-                    rect.y = Mathf.Clamp(rect.y, 0, tex.height);
-                    rect.width = Mathf.Min(rect.width, tex.width - rect.x);
-                    rect.height = Mathf.Min(rect.height, tex.height - rect.y);
+                    rect.x = Mathf.Clamp(rect.x, 0, texture2D.width);
+                    rect.y = Mathf.Clamp(rect.y, 0, texture2D.height);
+                    rect.width = Mathf.Min(rect.width, texture2D.width - rect.x);
+                    rect.height = Mathf.Min(rect.height, texture2D.height - rect.y);
                     // 生成Sprite
                     Sprite sprite = Sprite.Create(
-                        tex,
+                        texture2D,
                         rect,
                         new Vector2(0.5f, 0.5f),
                         1f
                     );
+                    sprites[id] = sprite;
+                }
+            }
+            return sprites;
+        }
+        public static PuzzleModel CutTextureToSprites(
+            Texture2D tex, 
+            Vector2Int size)
+        {
+            var puzzleModel = new PuzzleModel(size);
+            puzzleModel.SetTexture(tex);
+            int cols = size.x; // 横向数量
+            int rows = size.y; // 纵向数量
+            var sprites = GetTextureSprite(tex, size);
+            var pieces = new PieceModel[cols, rows];
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < cols; x++)
+                {
+                    int id = x + y * cols;
                     pieces[x, y] = new PieceModel
                     {
                         Id = id,
-                        Sprite = sprite,
                         IsEmpty = id == 0,
                         Type = PieceTypeEnum.Free
                     };

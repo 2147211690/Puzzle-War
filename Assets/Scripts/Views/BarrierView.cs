@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using Models;
 using Tools;
 using UnityEngine;
@@ -16,6 +17,10 @@ namespace Views
         public void AddClickEvent(Action<Barrier> onClick)
         {
             button.onClick.AddListener(() => onClick(Barrier));
+        }
+        public void PlayComplete(float animTime)
+        {
+            image.DOFade(0, animTime).SetEase(Ease.OutQuad);
         }
     }
 }

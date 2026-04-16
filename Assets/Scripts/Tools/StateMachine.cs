@@ -27,12 +27,13 @@ namespace Tools
         {
             CurrentState.OnEnter();
         }
-        public void ChangeState(T newState)
+        public T ChangeState(T newState)
         {
             CurrentState.OnExit();
             PreviousState = CurrentState;
             CurrentState = newState;
             CurrentState.OnEnter();
+            return CurrentState;
         }
 
         public void ResetState()

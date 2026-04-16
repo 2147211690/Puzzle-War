@@ -3,7 +3,7 @@
     "projectname": "Puzzle War",
     "unity": {
         "build": {
-            "webgl": "D:\\Projects\\UnityProjects\\Puzzle War Output\\webgl_package-20260416_021746.zip",
+            "webgl": "D:\\Projects\\UnityProjects\\Puzzle War Output\\webgl_package-20260417_043809.zip",
             "native": {
                 "il2cpp": "",
                 "apk": "",
@@ -14,7 +14,7 @@
         "publishType": "3",
         "starkSdkVersion": "Without StarkSDK",
         "unityToolsVersion": null,
-        "unityEngineVersion": "2022.3.55f1c1",
+        "unityEngineVersion": "2022.3.62f3",
         "arch": "both"
     },
     "setting": {
