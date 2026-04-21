@@ -9,7 +9,7 @@ namespace Controllers
         public class HammerToolState : State
         {
             public HammerToolState(PuzzleController owner) : base(owner) {}
-            public override void OnEnter()
+            public override void OnEnter(IState prevState)
             {
                 int count = 0;
                 for (int i = 0; i < Owner.PuzzleModel.Size.x; i++)
@@ -33,7 +33,7 @@ namespace Controllers
                 }
             }
 
-            public override void OnExit()
+            public override void OnExit(IState nextState)
             {
                 for (int i = 0; i < Owner.PuzzleModel.Size.x; i++)
                 {
@@ -69,6 +69,8 @@ namespace Controllers
                 Owner.PuzzleModel.SetPieceType(coords, PieceTypeEnum.Free);
                 Owner.puzzleView.PuzzlePieceViews[coords.x, coords.y].Type = PieceTypeEnum.Free;
                 Owner.puzzleView.PuzzlePieceViews[coords.x, coords.y].highlightable.enabled = false;
+                Owner.HammerCountMV--;
+                AudioManager.Instance.PlaySfx("hit");
                 Owner._stateMachine.ChangeState(Owner._playState);
             }
 
@@ -81,10 +83,7 @@ namespace Controllers
             {
                 if (toolType == ToolTypeEnum.Hammer) Owner._stateMachine.ChangeState(Owner._playState);
             }
-
-            public override void OnClickEventButton(GameEventEnum gameEvent)
-            {
-            }
+            
         }
     }
 }

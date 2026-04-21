@@ -1,5 +1,6 @@
 using Models;
 using Tools;
+using Uis;
 using UnityEngine;
 
 namespace Controllers
@@ -9,13 +10,25 @@ namespace Controllers
         public class WinState : State
         {
             public WinState(PuzzleController owner) : base(owner) {}
-            public override void OnEnter()
+            public override void OnEnter(IState prevState)
             {
                 Owner.PuzzleModel.FillAll();
-                Owner.puzzleView.Wim();
+                Owner.puzzleView.Wim(2f);
+                AudioManager.Instance.PlaySfx("win");
+                PlayerData.CurrentLevel = Mathf.Min(Owner.levelCount - 1, PlayerData.CurrentLevel + 1);
+                PlayerData.MaxUnlockLevel = Mathf.Max(PlayerData.MaxUnlockLevel, PlayerData.CurrentLevel);
+
+                SetUi(false);
             }
 
-            public override void OnExit()
+            private void SetUi(bool value)
+            {
+                Owner.puzzleUi.replayButton.interactable = value;
+                Owner.puzzleUi.homeButton.interactable = value;
+                Owner.puzzleUi.settingButton.interactable = value;
+            }
+
+            public override void OnExit(IState nextState)
             {
                 
             }
@@ -44,14 +57,30 @@ namespace Controllers
             public override void OnClickTool(ToolTypeEnum toolType)
             {
             }
-
-            public override void OnClickEventButton(GameEventEnum gameEvent)
-            {
-            }
-
+            
             public override void OnWinComplete()
             {
-                Owner.puzzleUi.OpenPopup("Win");
+                SetUi(true);
+                base.OnWinComplete();
+                Owner.puzzleUi.OpenWinPopup(Owner.PuzzleModel.Score, r =>
+                {
+                    if (r == PuzzleUi.WimPopupResult.NextLevel)
+                    {
+                        Owner._stateMachine.ChangeState(Owner._playState);
+                        Owner.Init(PlayerData.CurrentLevel);
+                    }
+                    else if (r == PuzzleUi.WimPopupResult.Home)
+                    {
+                        OnHome();
+                    }
+                });
+                DyAdManager.Instance.ShowInter();
+            }
+
+            public override void OnHome()
+            {
+                base.OnHome();
+                Owner._stateMachine.ChangeState(Owner._homeState);
             }
         }
     }

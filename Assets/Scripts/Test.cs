@@ -1,14 +1,61 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using Controllers;
+using Models;
+using Tools;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class Test : MonoBehaviour
 {
+    #if UNITY_EDITOR
     public PuzzleController puzzleController = null!;
     public Sprite puzzleSprite = null!;
     public Vector2Int puzzleSize = Vector2Int.one;
     public Texture2D texture = null!;
+
+    public Vector2Int size;
+    public int shuffleSteps;
+    public int fixedCount;
+    public int upDownCount;
+    public int leftRightCount;
+    public int barrierCount;
+    public string path;
+    private PuzzleDataList puzzleDatas = new();
+    
+    [Serializable]
+    private class PuzzleDataList
+    {
+        public List<TempPuzzleData> puzzleDatas = new();
+    }
+    [Serializable]
+    private class TempPuzzleData
+    {
+        public Vector2Int size;
+        public int difficulty = 1;
+        public int textureId;
+        public PieceModel[] _pieceModels;
+        public Barrier[] _barriers;
+    }
+
+    private TempPuzzleData GetTemp(PuzzleData data)
+    {
+        return new TempPuzzleData
+        {
+            size = data.size,
+            difficulty = data.difficulty,
+            textureId = data.textureId,
+            _pieceModels = data._pieceModels,
+            _barriers = data._barriers,
+        };
+    }
+
+    private void Start()
+    {
+        puzzleDatas = JsonUtility.FromJson<PuzzleDataList>(File.ReadAllText(path));
+    }
     public void OnGUI()
     {
         GUI.skin.button.fontSize = 24;
@@ -21,19 +68,70 @@ public class Test : MonoBehaviour
         GUILayoutOption[] btnOptions = new GUILayoutOption[] 
         { 
             GUILayout.Height(60),
-            GUILayout.ExpandWidth(true) 
+            GUILayout.ExpandWidth(true),
         };
-
+            // 创建自定义样式
+        GUIStyle customStyle = new GUIStyle(GUI.skin.label);
+        customStyle.fontSize = 30; 
+        if (GUILayout.Button("清理", btnOptions))
+        {
+            PlayerPrefs.DeleteAll();
+        }
         if (GUILayout.Button("创建随机色棋盘", btnOptions))
         {
             puzzleController.Init(puzzleSize, GenerateRandomPixelTexture(puzzleSize));
         }
+        if (GUILayout.Button("计算难度", btnOptions))
+        {
+            puzzleController.PuzzleModel.Difficulty = PuzzleTools.CalculateDifficulty(puzzleController.PuzzleModel);
+            Debug.Log($"难度: {puzzleController.PuzzleModel.Difficulty}");
+        }
     
         GUILayout.Space(10);  // 按钮间距
-
+        GUILayout.Label(puzzleDatas.puzzleDatas.Count.ToString(), customStyle);
         if (GUILayout.Button("创建图片棋盘", btnOptions))
         {
-            puzzleController.Init(puzzleSize, texture);
+            puzzleController.Init(PuzzleTools.CutTextureToSprites(texture, -1, size)
+                .RandomPiecesType(fixedCount, upDownCount, leftRightCount)
+                .RandomBarriers(barrierCount)
+                .ShufflePieces(shuffleSteps));
+            puzzleController.PuzzleModel.Difficulty = PuzzleTools.CalculateDifficulty(puzzleController.PuzzleModel);
+            Debug.Log($"难度: {puzzleController.PuzzleModel.Difficulty}");
+        }
+        if (GUILayout.Button("保存当前", btnOptions))
+        {
+            puzzleDatas.puzzleDatas.Add(GetTemp(puzzleController.PuzzleModel.ToPuzzleData()));
+            puzzleDatas.puzzleDatas[^1].textureId = puzzleDatas.puzzleDatas.Count - 1;
+            // 保存到文件
+            var json = JsonUtility.ToJson(puzzleDatas);
+            Debug.Log(json);
+            File.WriteAllText(path, json);
+        }
+
+        if (GUILayout.Button("排序", btnOptions))
+        {
+            puzzleDatas.puzzleDatas.Sort((a, b) =>
+            {
+                var x = a.size.x.CompareTo(b.size.x);
+                if (x != 0) return x;
+                var d = a.difficulty.CompareTo(b.difficulty);
+                if (d != 0) return d;
+                return 0;
+            });
+            for (int i = 0; i < puzzleDatas.puzzleDatas.Count; i++)
+            {
+                puzzleDatas.puzzleDatas[i].textureId = i;
+            }
+            var json = JsonUtility.ToJson(puzzleDatas);
+            Debug.Log(json);
+            File.WriteAllText(path, json);
+        }
+        if (GUILayout.Button("剔除<=1的难度", btnOptions))
+        {
+            puzzleDatas.puzzleDatas.RemoveAll(x => x.difficulty <= 1);
+            var json = JsonUtility.ToJson(puzzleDatas);
+            Debug.Log(json);
+            File.WriteAllText(path, json);
         }
 
         GUILayout.Space(10);
@@ -118,4 +216,5 @@ public class Test : MonoBehaviour
 
         return tex;
     }
+    #endif
 }

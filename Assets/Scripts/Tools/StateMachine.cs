@@ -25,14 +25,14 @@ namespace Tools
         private T _currentState;
         public void Init()
         {
-            CurrentState.OnEnter();
+            CurrentState.OnEnter(CurrentState);
         }
         public T ChangeState(T newState)
         {
-            CurrentState.OnExit();
+            CurrentState.OnExit(newState);
             PreviousState = CurrentState;
             CurrentState = newState;
-            CurrentState.OnEnter();
+            CurrentState.OnEnter(PreviousState);
             return CurrentState;
         }
 
@@ -49,7 +49,7 @@ namespace Tools
     
     public interface IState
     {
-        void OnEnter();
-        void OnExit();
+        void OnEnter(IState prevState);
+        void OnExit(IState nextState);
     }
 }

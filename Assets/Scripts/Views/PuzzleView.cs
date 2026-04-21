@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Models;
 using TMPro;
@@ -13,7 +14,11 @@ namespace Views
         public GameObject puzzlePieceViewPrefab = null!;
         public GameObject backNumberPrefab = null!;
         public GameObject barrierPrefab = null!;
+        public Material blurMaterial = null!;
+        
         public PuzzlePieceView[,] PuzzlePieceViews { get; set; } = null!;
+        public Image previewImage = null!;
+        public Button sideBarButton = null!;
         public Dictionary<Barrier, BarrierView> BarrierViews { get; set; } = new();
         public RectTransform rectTransform = null!;
         public GameObject numbers = null!;
@@ -24,7 +29,7 @@ namespace Views
         private Vector2Int _puzzleSize;
         private Vector2 _pieceSize = new(100, 100);
         private Vector2 _offset = new(0.5f, 0.5f);
-        public void Init(PuzzleModel puzzleModel)
+        public void SetPuzzleGame(PuzzleModel puzzleModel)
         {
             Clear();
             _puzzleSize = puzzleModel.Size;
@@ -38,7 +43,7 @@ namespace Views
                 {
                     //if (enumerator.Current.Sprite is null) continue;
                     var piece = puzzleModel[i, j];
-                    CreatePiece(piece, new Vector2Int(i, j), puzzleModel.Sprites[piece.Id]);
+                    CreatePiece(piece, new Vector2Int(i, j), puzzleModel.GetSprite(piece.Id));
                     CreateBackNumber(i + j * _puzzleSize.x + 1, new Vector2Int(i, j));
                 }
             }
@@ -46,6 +51,16 @@ namespace Views
             {
                 CreateBarrier(barrier);
             }
+        }
+
+        public void SetPuzzlePreview(PuzzleModel puzzleModel, bool isUnlocked)
+        {
+            Clear();
+            previewImage.enabled = true;
+            previewImage.sprite = Sprite.Create(puzzleModel.Texture2D, 
+                new Rect(0, 0, puzzleModel.Texture2D.width, puzzleModel.Texture2D.height), 
+                new Vector2(0.5f, 0.5f), 100);
+            previewImage.material = isUnlocked ? null! : blurMaterial;
         }
         public void OnToolClicked(int toolType) => ToolClicked?.Invoke(this, (ToolTypeEnum)toolType);
         public void Clear()
@@ -66,8 +81,10 @@ namespace Views
             {
                 Destroy(barriers.transform.GetChild(i).gameObject);
             }
+
+            previewImage.enabled = false;
         }
-        private PuzzlePieceView CreatePiece(in PieceModel piece, in Vector2Int coords, Sprite sprite)
+        private PuzzlePieceView CreatePiece(in PieceModel piece, in Vector2Int coords, Sprite? sprite)
         {
             var pieceView = PuzzlePieceViews[coords.x, coords.y] = Instantiate(puzzlePieceViewPrefab, pieces.transform).GetComponent<PuzzlePieceView>();
             pieceView.Init(piece.Id, sprite, piece.Type, _pieceSize);
@@ -112,7 +129,7 @@ namespace Views
             (PuzzlePieceViews[from.x, from.y], PuzzlePieceViews[to.x, to.y]) = (toPiece, fromPiece);
         }
 
-        public void Wim()
+        public void Wim(float animTime)
         {
             foreach (var piece in PuzzlePieceViews)
             {
@@ -130,7 +147,12 @@ namespace Views
             {
                 barrier.PlayComplete(0.2f);
             }
-            //TODO:动画等待完成
+            StartCoroutine(WimAnim(animTime));
+        }
+        
+        private IEnumerator WimAnim(float animTime)
+        {
+            yield return new WaitForSeconds(animTime);
             WinComplete?.Invoke(this, EventArgs.Empty);
         }
         private Vector2 GetPosition(int i, int j)

@@ -9,7 +9,7 @@ namespace Controllers
         public class ScissorsToolState : State
         {
             public ScissorsToolState(PuzzleController owner) : base(owner) {}
-            public override void OnEnter()
+            public override void OnEnter(IState prevState)
             {
                 int count = 0;
                 for (int i = 0; i < Owner.PuzzleModel.Size.x; i++)
@@ -31,7 +31,7 @@ namespace Controllers
                 }
             }
 
-            public override void OnExit()
+            public override void OnExit(IState nextState)
             {
                 for (int i = 0; i < Owner.PuzzleModel.Size.x; i++)
                 {
@@ -69,6 +69,8 @@ namespace Controllers
             {
                 Owner.PuzzleModel.RemoveBarrier(barrier);
                 Owner.puzzleView.RemoveBarrier(barrier);
+                Owner.ScissorsCountMV--;
+                AudioManager.Instance.PlaySfx("cut");
                 Owner._stateMachine.ChangeState(Owner._playState);
             }
 
@@ -76,10 +78,7 @@ namespace Controllers
             {
                 if (toolType == ToolTypeEnum.Scissors) Owner._stateMachine.ChangeState(Owner._playState);
             }
-
-            public override void OnClickEventButton(GameEventEnum gameEvent)
-            {
-            }
+            
         }
     }
 }

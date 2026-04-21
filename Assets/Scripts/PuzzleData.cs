@@ -6,7 +6,8 @@ using UnityEngine;
 public class PuzzleData : ScriptableObject
 {
     public Vector2Int size;
-    public Texture2D texture;
+    public int difficulty = 1;
+    public int textureId = 0;
     public PieceModel[] _pieceModels;
     public Barrier[] _barriers;
 }

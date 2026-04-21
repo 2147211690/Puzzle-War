@@ -7,7 +7,7 @@ namespace Uis
 {
     public class LevelPopup : MonoBehaviour
     {
-        public int SelectedLevel { get; private set; } = 0;
+        public int SelectedLevel { get; set; } = 0;
         public GameObject levelButtonPrefab = null!;
         public RectTransform boxRectTransform = null!;
         public GridLayoutGroup boxGridLayout = null!;
@@ -18,14 +18,13 @@ namespace Uis
         public UnityEvent selectComplete = new();
         public int PageCount { get; private set; }
 
-        public int CurrentPage
+        public int CurrentPageIndex
         {
-            get => _currentPage;
+            get => _currentPageIndexIndex;
             set
             {
-                if (value == _currentPage) return;
-                _currentPage = value;
-                UpdateLevelButtons();
+                if (value == _currentPageIndexIndex) return;
+                _currentPageIndexIndex = value;
             }
         }
 
@@ -37,8 +36,7 @@ namespace Uis
                 if (value == _levelCount) return;
                 _levelCount = value;
                 PageCount = (int)Math.Ceiling((double)_levelCount / (cellCount.x * cellCount.y));
-                _currentPage = Mathf.Clamp(CurrentPage, 0, PageCount - 1);
-                UpdateLevelButtons();
+                _currentPageIndexIndex = Mathf.Clamp(CurrentPageIndex, 0, PageCount - 1);
             }
         }
 
@@ -49,7 +47,6 @@ namespace Uis
             { 
                 if (value == _maxUnlockedLevel) return;
                 _maxUnlockedLevel = value;
-                UpdateLevelButtons();
             }
         }
         
@@ -58,7 +55,7 @@ namespace Uis
         
         private LevelButton[,] levelButtons;
         private int _levelCount = 0;
-        private int _currentPage = 0;
+        private int _currentPageIndexIndex = 0;
         private int _maxUnlockedLevel = 10;
 
         public void Awake()
@@ -82,8 +79,11 @@ namespace Uis
                 });
                 levelButtons[i % cellCount.x, i / cellCount.x] = cell;
             }
-            
-            LevelCount = 100;
+        }
+
+        private void OnEnable()
+        {
+            UpdateLevelButtons();
         }
 
         private void OnClick(int index)
@@ -100,22 +100,25 @@ namespace Uis
                 var cell = levelButtons[i % cellCount.x, i / cellCount.x];
                 var level = GetRealLevel(i);
                 cell.Level = level;
+                cell.IsSelected = SelectedLevel == level;
                 cell.IsUnlocked = level <= MaxUnlockedLevel;
-                cell.gameObject.SetActive(level <= LevelCount);
+                cell.gameObject.SetActive(level < LevelCount);
             }
-            nextPageButton.interactable = CurrentPage < PageCount - 1;
-            prevPageButton.interactable = CurrentPage > 0;
+            nextPageButton.interactable = CurrentPageIndex < PageCount - 1;
+            prevPageButton.interactable = CurrentPageIndex > 0;
         }
 
         public void OnNextPage()
         {
-            CurrentPage++;
+            CurrentPageIndex++;
+            UpdateLevelButtons();
         }
 
         public void OnPrevPage()
         {
-            CurrentPage--;
+            CurrentPageIndex--;
+            UpdateLevelButtons();
         }
-        private int GetRealLevel(int index) => index + cellCount.x * cellCount.y * CurrentPage;
+        private int GetRealLevel(int index) => index + cellCount.x * cellCount.y * CurrentPageIndex;
     }
 }

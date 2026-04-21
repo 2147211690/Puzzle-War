@@ -11,12 +11,6 @@ public class SkipLogo
 #if UNITY_WEBGL
         // 如果在 WebGL 平台上运行，立即停止启动动画
         SplashScreen.Stop(SplashScreen.StopBehavior.StopImmediate);
-#else
-        // 如果不是在 WebGL 平台上，启动一个异步任务来停止启动动画
-        System.Threading.Tasks.Task.Run(()=>
-        {
-            SplashScreen.Stop(SplashScreen.StopBehavior.StopImmediate);
-        });
 #endif
     }
 }

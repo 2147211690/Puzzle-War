@@ -9,12 +9,16 @@ namespace Controllers
         public class PlayState : State
         {
             public PlayState(PuzzleController owner) : base(owner) {}
-            public override void OnEnter()
+            public override void OnEnter(IState prevState)
             {
-                
+                if (prevState == Owner._homeState || prevState == Owner._winState)
+                {
+                    DyAdManager.Instance.ShowInter();
+                }
+                DyAdManager.Instance.ShowBannerAd();
             }
 
-            public override void OnExit()
+            public override void OnExit(IState nextState)
             {
                 
             }
@@ -22,22 +26,22 @@ namespace Controllers
             public override void Init(Vector2Int puzzleSize, Texture2D texture2D)
             {
                 // 自动切割大图 → 小Sprite列表
-                Owner.PuzzleModel = PuzzleTools.CutTextureToSprites(texture2D, puzzleSize)
+                Owner.PuzzleModel = PuzzleTools.CutTextureToSprites(texture2D, -1, puzzleSize)
                     .RandomPiecesType(3,2,2)
                     .RandomBarriers(5)
                     .ShufflePieces(Owner.shuffleSteps);
                 // 初始化 View
-                Owner.puzzleView.Init(Owner.PuzzleModel);
+                Owner.puzzleView.SetPuzzleGame(Owner.PuzzleModel);
                 RegesterClick();
                 Owner.CurrentScore = 100;
-                AudioManager.Instance.PlayBGM("bgm");
             }
+            
 
             public override void Init(PuzzleModel puzzleModel)
             {
                 Owner.PuzzleModel = puzzleModel;
                 // 初始化 View
-                Owner.puzzleView.Init(Owner.PuzzleModel);
+                Owner.puzzleView.SetPuzzleGame(Owner.PuzzleModel);
                 RegesterClick();
                 Owner.CurrentScore = 100;
                 AudioManager.Instance.PlayBGM("bgm");
@@ -73,15 +77,44 @@ namespace Controllers
                 
             }
 
-            public override void OnClickTool(ToolTypeEnum toolType)
+            public override void OnReplay()
             {
-                if (toolType == ToolTypeEnum.Hammer) Owner._stateMachine.ChangeState(Owner._hammerToolState);
-                else if (toolType == ToolTypeEnum.Scissors) Owner._stateMachine.ChangeState(Owner._scissorsToolState);
+                base.OnReplay();
+                Owner.Init(PlayerData.CurrentLevel);
             }
 
-            public override void OnClickEventButton(GameEventEnum gameEvent)
+            public override void OnHome()
             {
-                if (gameEvent == GameEventEnum.LeaveLevel) Owner._stateMachine.ChangeState(Owner._waitState);
+                base.OnHome();
+                Owner._stateMachine.ChangeState(Owner._homeState);
+            }
+
+            public override void OnClickTool(ToolTypeEnum toolType)
+            {
+                if (toolType == ToolTypeEnum.Hammer)
+                {
+                    if (Owner.HammerCountMV <= 0)
+                    {
+                        DyAdManager.Instance.ShowReward(r =>
+                        {
+                            if (r) Owner.HammerCountMV++;
+                        });
+                        return;
+                    }
+                    Owner._stateMachine.ChangeState(Owner._hammerToolState);
+                }
+                else if (toolType == ToolTypeEnum.Scissors)
+                {
+                    if (Owner.ScissorsCountMV <= 0)
+                    {
+                        DyAdManager.Instance.ShowReward(r =>
+                        {
+                            if (r) Owner.ScissorsCountMV++;
+                        });
+                        return;
+                    }
+                    Owner._stateMachine.ChangeState(Owner._scissorsToolState);
+                }
             }
         }
     }

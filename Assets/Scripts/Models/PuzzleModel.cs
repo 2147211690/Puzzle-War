@@ -9,13 +9,15 @@ namespace Models
     {
         public Vector2Int Size { get; }
         public int StepCount { get; set; }
+        public int Score { get; set; }
+        public int Difficulty { get; set; } = 1;
         public IReadOnlyCollection<Barrier> Barriers => _barriers;
-        public Texture2D Texture2D { get; private set; }
-        public IReadOnlyList<Sprite> Sprites => _sprites;
+        public Texture2D? Texture2D { get; private set; }
+        public int TextureId { get; private set; }
         private PieceModel[,] _pieceModels;
         private Vector2Int[] _coords;
         private HashSet<Barrier> _barriers = new();
-        private Sprite[] _sprites;
+        private Sprite[]? _sprites;
         public PuzzleModel(Vector2Int size)
         {
             Size = size;
@@ -26,11 +28,14 @@ namespace Models
         public PuzzleModel(PuzzleData puzzleData)
         {
             Size = puzzleData.size;
+            Difficulty = puzzleData.difficulty;
+            TextureId = puzzleData.textureId;
             _pieceModels = new PieceModel[Size.x, Size.y];
             _coords = new Vector2Int[Size.x * Size.y];
             foreach (var barrier in puzzleData._barriers) _barriers.Add(barrier);
-            _sprites = PuzzleTools.GetTextureSprite(puzzleData.texture, Size);
-            Texture2D = puzzleData.texture;
+            var texture = Resources.Load<Texture2D>($"Textures/{TextureId}");
+            _sprites = texture == null ? null : PuzzleTools.GetTextureSprite(texture, Size);
+            Texture2D = texture;
             for (int i = 0; i < puzzleData._pieceModels.Length; i++)
             {
                 var x = i % Size.x;
@@ -39,12 +44,12 @@ namespace Models
                 _coords[_pieceModels[x, y].Id] = new Vector2Int(x, y);
             }
         }
-
+        public Sprite? GetSprite(int id) => _sprites?[id];
         public PuzzleData ToPuzzleData()
         {
             var data = ScriptableObject.CreateInstance<PuzzleData>();
             data.size = Size;
-            data.texture = Texture2D;
+            data.textureId = TextureId;
             var pieces = new PieceModel[Size.x * Size.y];
             for (int i = 0; i < pieces.Length; i++)
             {
@@ -54,6 +59,7 @@ namespace Models
             }
             data._pieceModels = pieces;
             data._barriers = _barriers.ToArray();
+            data.difficulty = Difficulty;
             return data;
         }
         public void Swap(Vector2Int coords1, Vector2Int coords2)
@@ -82,9 +88,10 @@ namespace Models
             }
         }
 
-        public void SetTexture(Texture2D texture2D)
+        public void SetTexture(Texture2D texture2D, int textureId)
         {
             _sprites = PuzzleTools.GetTextureSprite(texture2D, Size);
+            TextureId = textureId;
         }
         //需要保证id 0-size.x*size.y-1,且每个id只出现一次
         public void SetPuzzle(PieceModel[,] pieces)
