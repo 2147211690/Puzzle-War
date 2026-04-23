@@ -8,12 +8,21 @@ namespace Models
     {
         public static void InitDate()
         {
+            #if DEBUG
+            MaxUnlockLevel = 50;
+            CurrentLevel = 0;
+            MaxScore = 0;
+            HammerCount = 100;
+            ScissorsCount = 100;
+            SideBarEnterTime = DateTime.Today - TimeSpan.FromDays(1);
+            #else
             MaxUnlockLevel = 0;
             CurrentLevel = 0;
             MaxScore = 0;
             HammerCount = 1;
             ScissorsCount = 1;
             SideBarEnterTime = DateTime.Today - TimeSpan.FromDays(1);
+            #endif
         }
 
         public static int MaxUnlockLevel
@@ -91,10 +100,10 @@ namespace Models
         public static bool HasEnterSideBarAward => DateTime.Now >= SideBarEnterTime.AddDays(1);
         public static bool IsFirstGame
         {
-            get => PlayerPrefs.GetInt(nameof(IsFirstGame)) == 1;
+            get => PlayerPrefs.GetInt(nameof(IsFirstGame)) == 0;
             set
             {
-                PlayerPrefs.SetInt(nameof(IsFirstGame), value ? 1 : 0);
+                PlayerPrefs.SetInt(nameof(IsFirstGame), value ? 0 : 1);
                 PlayerPrefs.Save();
             }
         }
