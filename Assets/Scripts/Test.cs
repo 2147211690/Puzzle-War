@@ -186,7 +186,10 @@ public class Test : MonoBehaviour
             new Vector2(0.5f, 0.5f)
         );
     }
-        
+    public void OnUnlockLevel()
+    {
+        PlayerData.MaxUnlockLevel = puzzleController.levelCount;
+    }
     /// <summary>
     /// 创建一张每个像素都是随机颜色的 Texture2D
     /// </summary>

@@ -39,7 +39,6 @@ namespace Uis
         public Button levelButton = null!;
         public Button enterSideButton = null!;
         public Button enterSideGetAwardButton = null!;
-        public Button unlockLevelButton = null!;
         [Header("道具")]
         public TMP_Text hammerText = null!;
         public TMP_Text scissorsText = null!;

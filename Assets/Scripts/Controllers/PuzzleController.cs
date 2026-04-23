@@ -69,7 +69,6 @@ namespace Controllers
             puzzleUi.homeButton.onClick.AddListener(OnHome);
             puzzleUi.levelButton.onClick.AddListener(OnLevel);
             puzzleUi.enterSideButton.onClick.AddListener(OnEnterSideBarAward);
-            puzzleUi.unlockLevelButton.onClick.AddListener(OnUnlockLevel);
             puzzleUi.levelPopup.LevelCount = levelCount;
             
             TTInit();
@@ -133,10 +132,6 @@ namespace Controllers
                     Debug.Log("正常进来的");
                 }
             }
-        }
-        private void OnUnlockLevel()
-        {
-            PlayerData.MaxUnlockLevel = levelCount;
         }
 
         private void OnEnterSideBarAward()
